@@ -1,0 +1,15 @@
+[project]
+name = "sentinel"
+version = "0.1.0"
+description = "Real-time fraud risk scoring with an AI investigator agent"
+readme = "README.md"
+authors = [{ name = "Shola Akinade" }]
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+sentinel = "sentinel:main"
+
+[build-system]
+requires = ["uv_build>=0.12.0,<0.13.0"]
+build-backend = "uv_build"
