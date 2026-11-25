@@ -5,7 +5,10 @@ description = "Real-time fraud risk scoring with an AI investigator agent"
 readme = "README.md"
 authors = [{ name = "Shola Akinade" }]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "kaggle>=2.2.5",
+    "six>=1.17.0",
+]
 
 [project.scripts]
 sentinel = "sentinel:main"
