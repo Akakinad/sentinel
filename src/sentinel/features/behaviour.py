@@ -32,3 +32,22 @@ def add_count_features(df: pd.DataFrame) -> pd.DataFrame:
         out[name] = counts.fillna(0).astype(int).to_numpy()
 
     return out
+
+AMOUNT_WINDOW = "30D"
+
+
+def add_amount_features(df: pd.DataFrame) -> pd.DataFrame:
+    """Add each customer's past 30-day average amount and the ratio to it.
+
+    The window ends just before the current transaction (closed="left").
+    With no purchase in the previous 30 days, both values are NaN.
+    The result is sorted by customer, then time.
+    """
+    out = df.copy()
+    out[TIME_COL] = pd.to_datetime(out[TIME_COL])
+    out = out.sort_values([CUSTOMER_COL, TIME_COL])
+
+    grouped = out.set_index(TIME_COL).groupby(CUSTOMER_COL)["amt"]
+    out["avg_amt_30d"] = grouped.rolling(AMOUNT_WINDOW, closed="left").mean().to_numpy()
+    out["amt_ratio_30d"] = out["amt"] / out["avg_amt_30d"]
+    return out
