@@ -5,32 +5,14 @@ Usage:
     uv run python scripts/train_model.py
 """
 
-from pathlib import Path
-
-import pandas as pd
 from sklearn.metrics import average_precision_score
 
+from sentinel.data_sources import MODEL_DIR, load_raw
 from sentinel.features.pipeline import CATEGORIES, FEATURE_COLUMNS, build_features
 from sentinel.model.artifacts import save_model
 from sentinel.model.split import SPLITS, split_by_time
 from sentinel.model.thresholds import choose_thresholds
 from sentinel.model.train import TARGET_COL, train_model
-
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-RAW_DIR = PROJECT_ROOT / "data" / "raw"
-MODEL_DIR = PROJECT_ROOT / "models"
-RAW_FILES = ["fraudTrain.csv", "fraudTest.csv"]
-
-
-def load_raw() -> pd.DataFrame:
-    """Load and combine the two Sparkov CSVs; stop if they are missing."""
-    for name in RAW_FILES:
-        if not (RAW_DIR / name).exists():
-            raise SystemExit(
-                f"ERROR: {name} not found. Run scripts/download_data.py first."
-            )
-    tables = [pd.read_csv(RAW_DIR / name, index_col=0) for name in RAW_FILES]
-    return pd.concat(tables, ignore_index=True)
 
 
 def main() -> None:
