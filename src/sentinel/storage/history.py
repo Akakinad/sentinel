@@ -73,4 +73,49 @@ def add_transaction(conn: sqlite3.Connection, tx: dict) -> None:
         f"INSERT INTO {TABLE} ({', '.join(COLUMNS)}) VALUES ({placeholders})",
         values,
     )
+
+DECISIONS_TABLE = "decisions"
+
+
+def ensure_decisions_table(conn: sqlite3.Connection) -> None:
+    """Create the decisions table if it does not exist yet."""
+    conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {DECISIONS_TABLE} (
+            trans_num TEXT PRIMARY KEY,
+            cc_num INTEGER NOT NULL,
+            {TIME_COL} TEXT NOT NULL,
+            amt REAL NOT NULL,
+            score REAL NOT NULL,
+            zone TEXT NOT NULL CHECK (zone IN ('approve', 'investigate', 'block')),
+            scored_at TEXT NOT NULL
+        )
+        """
+    )
     conn.commit()
+
+
+def decision_exists(conn: sqlite3.Connection, trans_num: str) -> bool:
+    """True if this transaction has already been scored and recorded."""
+    row = conn.execute(
+        f"SELECT 1 FROM {DECISIONS_TABLE} WHERE trans_num = ?", (trans_num,)
+    ).fetchone()
+    return row is not None
+
+
+def record_decision(conn: sqlite3.Connection, tx: dict, score: float, zone: str) -> None:
+    """Insert one decision. The caller commits."""
+    conn.execute(
+        f"INSERT INTO {DECISIONS_TABLE} "
+        f"(trans_num, cc_num, {TIME_COL}, amt, score, zone, scored_at) "
+        f"VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (
+            tx["trans_num"],
+            int(tx["cc_num"]),
+            pd.Timestamp(tx[TIME_COL]).strftime(TIME_FORMAT),
+            float(tx["amt"]),
+            score,
+            zone,
+            pd.Timestamp.now().strftime(TIME_FORMAT),
+        ),
+    )
