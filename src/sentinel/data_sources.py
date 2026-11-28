@@ -10,6 +10,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 RAW_DIR = PROJECT_ROOT / "data" / "raw"
 MODEL_DIR = PROJECT_ROOT / "models"
 HISTORY_DB_PATH = PROJECT_ROOT / "data" / "history.db"
+POLICY_MANUAL_PATH = PROJECT_ROOT / "policies" / "policy_manual.md"
+POLICY_INDEX_DIR = PROJECT_ROOT / "data" / "policy_index"
 
 RAW_FILES = ["fraudTrain.csv", "fraudTest.csv"]
 
